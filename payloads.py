@@ -14,7 +14,7 @@ time_entry_payload = {
     #   "value": {}
     # }
   ],
-  "description": "string",
+  "description": "",
   "end": "2023-08-30T14:16:22Z",
   "projectId": "string",
   "start": "2023-08-30T14:15:22Z",

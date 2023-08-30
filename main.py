@@ -1,6 +1,8 @@
 import requests
 import payloads
 
+import pandas as pd
+
 url = "https://api.clockify.me/api/"
 headers={"x-api-key" : ''}
 
@@ -23,12 +25,24 @@ def get_all_projects():
             projectId = item['id']
     return projectId, workspaceId
 
+def get_desired_dates():
+    """Refactor to get dates from choosen range"""
+    start_date = '2023-08-01'
+    end_date = '2023-08-31'
+    business_dates = pd.bdate_range(start_date, end_date)
+    return business_dates
+
 def post_time_entry():
     projectId, workspaceId = get_all_projects()
     payload = payloads.time_entry_payload
     payload['projectId'] = projectId
-    r = requests.post(url + f'v1/workspaces/{workspaceId}/time-entries', headers=headers, json=payload)
-    print (r.status_code)
+    business_dates = get_desired_dates()
+    for date in business_dates:
+        date = date.strftime('%Y-%m-%d')
+        payload['start'] = f'{date}T08:00:00Z'
+        payload['end'] = f'{date}T16:00:00Z'
+        r = requests.post(url + f'v1/workspaces/{workspaceId}/time-entries', headers=headers, json=payload)
+        print (r.status_code)
 
 if __name__ == "__main__":
     post_time_entry()
