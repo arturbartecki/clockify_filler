@@ -6,43 +6,57 @@ import pandas as pd
 url = "https://api.clockify.me/api/"
 headers={"x-api-key" : ''}
 
+
 def run_clockify_filler():
-    print("Hello and welcome to Clockify filler. Please select what you want me to do:")
-    get_all_projects()
+    print("Hello and welcome to Clockify filler. Please select what you want me to do: ")
+    api_key = input("Please provide your api key. It can be found in profile settings: ")
+    headers['x-api-key'] = api_key
+    projectId, workspaceId = get_project()
+    post_time_entry(projectId, workspaceId)
+
 
 def get_workspace_name():
     """Future update: add handling multiple workspaces"""
-    r = requests.get(url + 'v1/workspaces', headers=headers)
-    return r.json()[0]['id']
+    workspaces = requests.get(url + 'v1/workspaces', headers=headers)
+    if len(workspaces.json()) == 1:
+        return workspaces.json()[0]['id']
+    else:
+        for index, item in enumerate(workspaces.json(), start=1):
+            print(f"{index} - {item['name']}")
+        workspaceId = int(input("Please select number of the workspace you want to log your time: ")) - 1
+        return workspaces.json()[workspaceId]['id']
 
-def get_all_projects():
-    """Future update: add handling multiple projects"""
+
+def get_project():
+    """Functon handles selecting specific project"""
     workspaceId = get_workspace_name()
-    r = requests.get(url + f'v1/workspaces/{workspaceId}/projects', headers=headers)
-    projectId = None
-    for item in r.json():
-        if item['name'] == 'Kyriba':
-            projectId = item['id']
+    projects = requests.get(url + f'v1/workspaces/{workspaceId}/projects', headers=headers)
+    for index, item in enumerate(projects.json(), start=1):
+        print(f"{index} - {item['name']}")
+    projectId = int(input("Please select number of the project you want to log your time: ")) - 1
+    projectId = projects.json()[projectId]['id']
     return projectId, workspaceId
 
-def get_desired_dates():
-    """Refactor to get dates from choosen range"""
-    start_date = '2023-08-01'
-    end_date = '2023-08-31'
+
+def get_business_days():
+    """Refactor to handle incorrect user input"""
+    start_date = input("Please provide start date in format YYYY-MM-DD: ")
+    end_date = input("Please provide end date in format YYYY-MM-DD: ")
     business_dates = pd.bdate_range(start_date, end_date)
     return business_dates
 
-def post_time_entry():
-    projectId, workspaceId = get_all_projects()
+
+def post_time_entry(projectId, workspaceId):
     payload = payloads.time_entry_payload
     payload['projectId'] = projectId
-    business_dates = get_desired_dates()
+    business_dates = get_business_days()
     for date in business_dates:
         date = date.strftime('%Y-%m-%d')
         payload['start'] = f'{date}T08:00:00Z'
         payload['end'] = f'{date}T16:00:00Z'
-        r = requests.post(url + f'v1/workspaces/{workspaceId}/time-entries', headers=headers, json=payload)
-        print (r.status_code)
+        post_request = requests.post(url + f'v1/workspaces/{workspaceId}/time-entries', headers=headers, json=payload)
+        print(f"Status code - {post_request.status_code}")
+
 
 if __name__ == "__main__":
-    post_time_entry()
+    run_clockify_filler()
