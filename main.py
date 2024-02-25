@@ -12,6 +12,8 @@ def run_clockify_filler():
     api_key = input("Please provide your api key. It can be found in profile settings: ")
     headers['x-api-key'] = api_key
     projectId, workspaceId = get_project()
+    # entries = get_time_entries(projectId, workspaceId)
+    # remove_time_entry(entries, workspaceId)
     post_time_entry(projectId, workspaceId)
 
 
@@ -57,6 +59,23 @@ def post_time_entry(projectId, workspaceId):
         post_request = requests.post(url + f'v1/workspaces/{workspaceId}/time-entries', headers=headers, json=payload)
         print(f"Status code - {post_request.status_code}")
 
+def get_time_entries(projectId, workspaceId):
+    params = {}
+    start_date = input("Please provide start date in format YYYY-MM-DD: ")
+    end_date = input("Please provide end date in format YYYY-MM-DD: ")
+    params['start'] = f'{start_date}T00:00:00Z'
+    params['end'] = f'{end_date}T23:00:00Z'
+    user = requests.get(url + f'v1/user', headers=headers)
+    userId = user.json()['id']
+    entries = requests.get(url + f'v1/workspaces/{workspaceId}/user/{userId}/time-entries', params=params, headers=headers)
+    return entries.json()
+
+def remove_time_entry(entries, workspaceId):
+    for entry in entries:
+        print(entry)
+        entryId = entry.get('id')
+        del_request = requests.delete(url + f'v1/workspaces/{workspaceId}/time-entries/{entryId}', headers=headers)
+        print(f"Status code - {del_request.status_code}")
 
 if __name__ == "__main__":
     run_clockify_filler()
