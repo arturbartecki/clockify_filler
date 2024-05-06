@@ -10,9 +10,9 @@ TODO:
 1. Create basic functions that will interact with API:
 - ~~Authentication~~
 - ~~Get all available projects~~
-- Get all time entries from given date period
+- ~~Get all time entries from given date period~~
 - Post single time entry
 - Remove sigle time entry
-2. Create functions that will fill/remove time entries in given time period
+2. ~~Create functions that will fill/remove time entries in given time period~~
 3. Add multiple ways to set period (current month/period between dates etc.)
 4. ~~Add data type validation and exceptions~~

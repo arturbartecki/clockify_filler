@@ -11,9 +11,9 @@ headers={'x-api-key' : ''}
 actions = {
     1: 'Add time records',
     2: 'Remove time records',
-    3: 'List records (To be developed)',
-    4: 'Post single time entry',
-    5: 'Remove sigle time entry',
+    3: 'List records',
+    4: 'Post single time entry(to be developed)',
+    5: 'Remove sigle time entry(to be developed)',
 }
 
 params = {}
@@ -31,7 +31,10 @@ def run_clockify_filler():
         post_time_entry(projectId, workspaceId)
     elif selected_action == '2':
         entries = get_time_entries(workspaceId)
-        remove_time_entry(entries, workspaceId, projectId)
+        remove_time_entries(entries, workspaceId, projectId)
+    elif selected_action == '3':
+        entries = get_time_entries(workspaceId)
+        print_time_entries(entries, projectId)
 
 
 def get_workspace_name():
@@ -102,11 +105,18 @@ def get_time_entries(workspaceId):
 
 def remove_time_entry(entries, workspaceId, projectId):
     for entry in entries:
-        print(entry)
         if entry.get('projectId') == projectId:
             entryId = entry.get('id')
             del_request = requests.delete(url + f'v1/workspaces/{workspaceId}/time-entries/{entryId}', headers=headers)
             print(f'Status code - {del_request.status_code}')
+
+def print_time_entries(entries, projectId):
+    for entry in entries:
+        if entry.get('projectId') == projectId:
+            print('---------------')
+            print(f'Start - {entry.get("timeInterval").get("start")}')
+            print(f'End - {entry.get("timeInterval").get("end")}')
+            print(f'Description - {entry.get("description")}')
 
 if __name__ == '__main__':
     run_clockify_filler()
