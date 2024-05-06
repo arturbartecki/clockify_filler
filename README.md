@@ -15,4 +15,4 @@ TODO:
 - Remove sigle time entry
 2. Create functions that will fill/remove time entries in given time period
 3. Add multiple ways to set period (current month/period between dates etc.)
-4. Add data type validation and exceptions
+4. ~~Add data type validation and exceptions~~
